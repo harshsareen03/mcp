@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Support Agent</title>
+  <style>
+    :root {
+      --bg: linear-gradient(135deg, #f7f1e8 0%, #dfe8f2 100%);
+      --panel: rgba(255, 255, 255, 0.86);
+      --ink: #183153;
+      --muted: #5f6f81;
+      --accent: #d86f45;
+      --accent-dark: #a54f2f;
+      --border: rgba(24, 49, 83, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(920px, 100%);
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 30px 80px rgba(24, 49, 83, 0.14);
+      overflow: hidden;
+    }
+
+    .hero {
+      padding: 28px;
+      background:
+        radial-gradient(circle at top right, rgba(216, 111, 69, 0.22), transparent 30%),
+        linear-gradient(120deg, rgba(24, 49, 83, 0.96), rgba(36, 69, 109, 0.88));
+      color: #fff8f2;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 620px;
+      color: rgba(255, 248, 242, 0.82);
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 0;
+    }
+
+    .sidebar,
+    .chat {
+      padding: 24px;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      margin-bottom: 8px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    input,
+    textarea,
+    button {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      font: inherit;
+    }
+
+    input,
+    textarea {
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.92);
+      margin-bottom: 16px;
+    }
+
+    textarea {
+      min-height: 112px;
+      resize: vertical;
+    }
+
+    button {
+      padding: 14px 18px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .chat-window {
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .message {
+      padding: 16px 18px;
+      border-radius: 18px;
+      animation: rise 220ms ease;
+    }
+
+    .user {
+      background: rgba(216, 111, 69, 0.12);
+      align-self: flex-end;
+      max-width: 80%;
+    }
+
+    .agent {
+      background: rgba(24, 49, 83, 0.08);
+      align-self: flex-start;
+      max-width: 88%;
+    }
+
+    .meta {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: pre-wrap;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 800px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <h1>Customer Support Copilot</h1>
+      <p>Ask about orders, policies, or unresolved issues. The backend can query tools, create tickets, and prepare a handoff summary for human agents.</p>
+    </section>
+
+    <section class="content">
+      <aside class="sidebar">
+        <label for="customerId">Customer ID</label>
+        <input id="customerId" type="number" placeholder="Example: 1" />
+
+        <label for="message">Message</label>
+        <textarea id="message" placeholder="Where is my order #45231?"></textarea>
+
+        <button id="sendButton" type="button">Send Message</button>
+      </aside>
+
+      <section class="chat">
+        <div id="chatWindow" class="chat-window">
+          <div class="message agent">
+            Welcome. Try: "Where is my order #45231?" or "I need help with a damaged item refund."
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const chatWindow = document.getElementById("chatWindow");
+    const messageInput = document.getElementById("message");
+    const customerIdInput = document.getElementById("customerId");
+    const sendButton = document.getElementById("sendButton");
+    const history = [];
+
+    function addMessage(text, role, meta = "") {
+      const node = document.createElement("div");
+      node.className = `message ${role}`;
+      node.textContent = text;
+
+      if (meta) {
+        const metaNode = document.createElement("div");
+        metaNode.className = "meta";
+        metaNode.textContent = meta;
+        node.appendChild(metaNode);
+      }
+
+      chatWindow.appendChild(node);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message) return;
+
+      addMessage(message, "user");
+      history.push({ role: "user", content: message });
+      messageInput.value = "";
+      sendButton.disabled = true;
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customer_id: customerIdInput.value ? Number(customerIdInput.value) : null,
+            message,
+            conversation_history: history
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.detail || "Request failed.");
+        }
+
+        history.push({ role: "assistant", content: data.response });
+        const toolNames = data.used_tools.map(tool => tool.name).join(", ") || "none";
+        const meta = `Escalated: ${data.escalated}\nTools: ${toolNames}\nSummary: ${data.conversation_summary}`;
+        addMessage(data.response, "agent", meta);
+      } catch (error) {
+        addMessage(`Error: ${error.message}`, "agent");
+      } finally {
+        sendButton.disabled = false;
+      }
+    }
+
+    sendButton.addEventListener("click", sendMessage);
+    messageInput.addEventListener("keydown", (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
