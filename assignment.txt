@@ -1,0 +1,47 @@
+
+AI Meeting Assistant
+Meeting Preparation
+Auto-generate meeting agenda
+Suggest agenda based on previous meetings
+Send automatic meeting reminders
+Suggest participants based on topic
+Pre-meeting document summarization
+
+During Meeting
+Real-time transcription
+Speaker identification (who said what)
+Highlight important moments automatically
+Real-time translation for multilingual meetings
+Live meeting summary panel
+
+Smart Insights
+Detect decisions made in meeting
+Detect action items automatically
+Identify deadlines mentioned
+Detect risks or blockers discussed
+Sentiment analysis of discussion
+
+Post-Meeting Automation
+Generate meeting summary automatically
+Send summary email to participants
+Create task list from action items
+Assign tasks to team members automatically
+Generate follow-up meeting suggestions
+
+Knowledge Management
+Store meeting knowledge in searchable database
+Link meeting notes to projects automatically
+Create knowledge base from discussions
+Tag meetings by topic automatically
+
+Productivity Features
+Track speaking time per participant
+Detect off-topic discussions
+Suggest next steps based on conversation
+Auto-create calendar follow-ups
+
+Analytics & Reporting
+Meeting productivity score
+Weekly meeting insights dashboard
+
+
