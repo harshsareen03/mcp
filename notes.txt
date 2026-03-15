@@ -1,1 +1,120 @@
 https://modelcontextprotocol.info/docs/?utm_source=chatgpt.com
+
+**What MCP Is**
+
+MCP stands for Model Context Protocol. In simple terms, it is a standard way for an AI system to talk to tools and data sources instead of guessing answers.
+
+Without MCP, the model only has text and can easily hallucinate.
+With MCP, the model can say:
+
+- “look up this order”
+- “search the knowledge base”
+- “create a ticket”
+- “get customer details”
+
+and your backend returns real data.
+
+In your project, MCP is implemented as a JSON-RPC endpoint at `/mcp` in [mcp_server.py](/Users/harshsareen/cm_col_f_1/mcp/ai-support-agent/backend/mcp_server.py#L89).
+
+**Why You’re Using It**
+
+You’re building an AI customer support agent. That agent should not invent:
+
+- order status
+- tracking numbers
+- customer records
+- ticket IDs
+- policy answers
+
+So instead of letting the model make things up, your app gives it structured tools. That is the reason MCP exists here.
+
+In this project, MCP exposes these tools:
+
+- `get_order_status`
+- `search_knowledge_base`
+- `create_support_ticket`
+- `get_customer_details`
+
+Those are registered in [mcp_server.py](/Users/harshsareen/cm_col_f_1/mcp/ai-support-agent/backend/mcp_server.py#L24).
+
+**How It Fits In Your App**
+
+Your app has two related parts:
+
+- `/chat`: the normal support chat endpoint
+- `/mcp`: the tool endpoint
+
+`/chat` is what the frontend or user talks to.  
+`/mcp` is what tools/agents can talk to.
+
+In [main.py](/Users/harshsareen/cm_col_f_1/mcp/ai-support-agent/backend/main.py#L25), the app includes the MCP router and also defines `/chat`.
+
+In [agent.py](/Users/harshsareen/cm_col_f_1/mcp/ai-support-agent/backend/agent.py#L23), the `SupportAgent` uses the same tool registry. So the agent can call those tools directly during a chat flow.
+
+That means:
+
+1. User sends a message to `/chat`
+2. Agent decides whether a tool is needed
+3. Tool is called
+4. Real result comes back
+5. Agent answers based on actual data
+
+Example:
+If user says, “Where is my order #45231?”
+the agent should call `get_order_status` instead of guessing.
+
+**Why This Is Better Than Hardcoding Everything**
+
+Using MCP-style tools gives you a cleaner design:
+
+- The AI logic stays separate from business logic
+- Tools are reusable
+- You can test tools independently
+- You can later connect external clients or agent frameworks to `/mcp`
+- It is easier to replace fake/local tools with real production systems later
+
+So MCP is not just “extra API work.” It makes your agent safer, more modular, and easier to grow.
+
+**What `/mcp` Actually Does Here**
+
+Your `/mcp` endpoint supports three main JSON-RPC methods:
+
+- `initialize`
+- `tools/list`
+- `tools/call`
+
+From [README.md](/Users/harshsareen/cm_col_f_1/mcp/ai-support-agent/README.md#L121), the flow is:
+
+- `initialize`: tells the client what server this is
+- `tools/list`: returns available tools and schemas
+- `tools/call`: runs one tool with arguments
+
+So `/mcp` is like a tool gateway.
+
+**Real Meaning in This Project**
+
+In your specific app, MCP is being used to let the support agent safely access:
+
+- database data for orders/customers
+- support KB content
+- ticket creation logic
+
+For example, `get_order_status` in [order_tool.py](/Users/harshsareen/cm_col_f_1/mcp/ai-support-agent/backend/tools/order_tool.py#L9) reads from the database and returns structured order info.
+
+That is exactly the kind of thing AI should not fake.
+
+**Short Version**
+
+You are using MCP because:
+
+- your AI needs real backend data
+- you want tool calls to be structured and predictable
+- you want to avoid hallucinations
+- you want a cleaner architecture for future growth
+
+So think of it like this:
+
+- `/chat` = talk to the assistant
+- `/mcp` = give the assistant trusted tools
+
+If you want, I can next explain this in an even simpler “beginner version” with a diagram-style flow.
