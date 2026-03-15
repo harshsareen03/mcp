@@ -117,4 +117,3 @@ So think of it like this:
 - `/chat` = talk to the assistant
 - `/mcp` = give the assistant trusted tools
 
-If you want, I can next explain this in an even simpler “beginner version” with a diagram-style flow.
